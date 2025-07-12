@@ -1,4 +1,4 @@
-﻿using ApiTaskManager.Middlewares;
+using ApiTaskManager.Middlewares;
 using ApiTaskManager.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,8 +21,10 @@ namespace ApiTaskManager.Helpers
             services.AddHealthChecks();
             services.AddDbContext<ApiDbContext>(options =>
                 options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+
             return services;
         }
+      
         public static WebApplication ConfigureApiPipeline(this WebApplication app)
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();
