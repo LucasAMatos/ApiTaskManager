@@ -1,4 +1,6 @@
 ﻿using ApiTaskManager.Middlewares;
+using ApiTaskManager.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiTaskManager.Helpers
 {
@@ -17,7 +19,8 @@ namespace ApiTaskManager.Helpers
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
             services.AddHealthChecks();
-
+            services.AddDbContext<ApiDbContext>(options =>
+                options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
             return services;
         }
         public static WebApplication ConfigureApiPipeline(this WebApplication app)
