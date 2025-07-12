@@ -13,4 +13,6 @@ app.UseHttpsRedirection();
 
 app.RegisterHealthChekEndpoints();
 
+app.RegisterTaskManagerEndpoints();
+
 app.Run();

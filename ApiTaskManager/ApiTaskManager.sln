@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35818.85 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTaskManager", "ApiTaskManager.csproj", "{2D3AF0F9-8713-1F81-B7D8-18C252BE2770}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2D3AF0F9-8713-1F81-B7D8-18C252BE2770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D3AF0F9-8713-1F81-B7D8-18C252BE2770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D3AF0F9-8713-1F81-B7D8-18C252BE2770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D3AF0F9-8713-1F81-B7D8-18C252BE2770}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BAB6C9D0-0A0C-42DD-9227-91B5C14F7710}
+	EndGlobalSection
+EndGlobal
