@@ -1,4 +1,6 @@
 ﻿using ApiTaskManager.Middlewares;
+using ApiTaskManager.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiTaskManager.Helpers
 {
@@ -9,15 +11,16 @@ namespace ApiTaskManager.Helpers
             services.AddEndpointsApiExplorer();
             services.AddOpenApiDocument(config =>
             {
-                config.Title = "AlteredSearch API";
-                config.Version = "v1";
-                config.Description = "API para consultar dados públicos do jogo Altered.";
+                config.Title = "APITaskManager";
+                config.Version = "V1";
+                config.Description = "API para Gerenciar Projetos e Tarefas do TIme";
             });
             // Add services to the container.
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
             services.AddHealthChecks();
-
+            services.AddDbContext<ApiDbContext>(options =>
+                options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
             return services;
         }
         public static WebApplication ConfigureApiPipeline(this WebApplication app)

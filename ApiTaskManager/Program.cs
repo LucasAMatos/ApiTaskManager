@@ -12,5 +12,6 @@ app.ConfigureApiPipeline();
 app.UseHttpsRedirection();
 
 app.RegisterHealthChekEndpoints();
+app.RegisterTaskManagerEndpoints();
 
 app.Run();
