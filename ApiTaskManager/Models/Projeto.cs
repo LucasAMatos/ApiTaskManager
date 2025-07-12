@@ -1,9 +1,13 @@
-﻿namespace ApiTaskManager.Models;
+﻿using ApiTaskManager.Enums;
+
+namespace ApiTaskManager.Models;
 
 public class Projeto
 {
     public int Id { get; set; }
-    public string Nome { get; set; } = null!;
+    public required string Nome { get; set; }
     public DateTime DataDeCriacao { get; set; }
-    public string Descricao { get; set; } = null!;
+    public required string Descricao { get; set; }
+    public string AlteradoPor { get; set; }
+    public Status Status { get; set; }
 }
