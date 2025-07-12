@@ -11,9 +11,14 @@ namespace ApiTaskManager.Services
     {
         private readonly ApiDbContext _context = context;
 
-        public async Task<List<Projeto>> GetAllProjectsAsync()
+        public async Task<List<string>> GetAllProjectsAsync()
         {
-            return await _context.Projetos.ToListAsync();
+            return await _context.Projetos.Select(p => p.Nome).ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllProjectsByStatusAsync(Status status)
+        {
+            return await _context.Projetos.Where(p => p.Status == status).Select(p => p.Nome).ToListAsync();
         }
 
         public async Task<Projeto?> GetByIdAsync(int id)
@@ -84,24 +89,34 @@ namespace ApiTaskManager.Services
             return novaTarefa;
         }
 
-        public Task<List<Tarefa>> GetAllTasksByProjectAsync(int idProjeto)
+        public async Task<List<Tarefa>> GetAllTasksByProjectAsync(int idProjeto)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status)
+        public async Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status)
         {
-            throw new NotImplementedException();
+            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new Exception("Projeto não encontrado");
+
+            return [.. projeto.Tarefas.Where(t => t.Status == status)];
         }
 
-        public Task<Tarefa> GetTaskByIDAsync(int idTask)
+        public async Task<Tarefa> GetTaskByIDAsync(int idTarefa)
         {
-            throw new NotImplementedException();
+            return await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
         }
 
-        public Task<Tarefa> UpdateTaskAsync(TarefaUpdateRequest request)
+        public async Task<Tarefa> UpdateTaskAsync(int idTarefa, TarefaUpdateRequest request)
         {
-            throw new NotImplementedException();
+            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
+
+
+            tarefa.Titulo = request.Titulo;
+            tarefa.Descricao = request.Descricao;
+            tarefa.DataDeVencimento = request.DataDeVencimento;
+            tarefa.Status = request.status;
+
+            return tarefa;
         }
 
         public Task<bool> AddCommentAsync(int idTask, string request)
@@ -109,9 +124,14 @@ namespace ApiTaskManager.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> CloseTaskAsync(int idTask)
+        public async Task<bool> CloseTaskAsync(int idTarefa)
         {
-            throw new NotImplementedException();
+            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
+
+            tarefa.Status = Enums.Status.Concluida;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -20,9 +20,16 @@ public static class ApiTaskManagerEndpoints
     {
         var projectEndpoints = api.MapGroup("Project").WithTags("Project");
 
-        projectEndpoints.MapGet("/listall", async ([FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapGet("/listAll", async ([FromServices] IProjetoService projetoService) =>
         {
             return await projetoService.GetAllProjectsAsync();
+        })
+        .Produces<List<Projeto>>()
+        .WithOpenApiTaskManager("Consultartodososprojetos", "Consulta todos os projetos");
+
+        projectEndpoints.MapGet("/listByStatus/{status}", async (Status status, [FromServices] IProjetoService projetoService) =>
+        {
+            return await projetoService.GetAllProjectsByStatusAsync(status);
         })
         .Produces<List<Projeto>>()
         .WithOpenApiTaskManager("Consultartodososprojetos", "Consulta todos os projetos ativos na equipe");
@@ -33,10 +40,10 @@ public static class ApiTaskManagerEndpoints
         })
         .WithOpenApiTaskManager("ConsultarProjeto", "Consultar detalhes do projeto");
 
-        projectEndpoints.MapPost("/newproject", async (ProjetoRequest request, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapPost("/newProject", async (ProjetoRequest request, [FromServices] IProjetoService projetoService) =>
         {
             var projeto = await projetoService.CreateProjectAsync(request);
-            return Results.Created($"/projetos/{projeto.Id}", projeto);
+            return Results.Created($"/{projeto.Id}", projeto);
         })
         .WithOpenApiTaskManager("CriarProjeto", "CriaNovoProjeto");
 
@@ -52,13 +59,13 @@ public static class ApiTaskManagerEndpoints
         })
         .WithOpenApiTaskManager("FinalizarProjeto", "Finaliza o Projeto");
 
-        projectEndpoints.MapPut("/{idProject}/newtask/", async (int idProject, TarefaRequest request, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapPut("/{idProject}/newTask/", async (int idProject, TarefaRequest request, [FromServices] IProjetoService projetoService) =>
         {
             return await projetoService.CreateTaskAsync(idProject, request);
         })
         .WithOpenApiTaskManager("IncluirTarefaNoProjeto", "Inclui nova tarefa no projeto");
 
-        projectEndpoints.MapGet("/{idProject}/tasksbystatus/{status}", async (int idProject, Status status, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapGet("/{idProject}/tasksByStatus/{status}", async (int idProject, Status status, [FromServices] IProjetoService projetoService) =>
         {
             return await projetoService.GetprojectTasksByStatusAsync(idProject, status);
         })
@@ -77,7 +84,7 @@ public static class ApiTaskManagerEndpoints
 
         projectEndpoints.MapPost("/{idTask}/update", async (int idTask, TarefaUpdateRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            return await projetoService.UpdateTaskAsync(request);
+            return await projetoService.UpdateTaskAsync(idTask, request);
         })
         .WithOpenApiTaskManager("AtualizarTarefa", "Atualiza os dados da tarefa");
 
