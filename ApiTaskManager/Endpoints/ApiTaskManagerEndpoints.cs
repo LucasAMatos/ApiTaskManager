@@ -1,8 +1,10 @@
-﻿using ApiTaskManager.Helpers;
+﻿using ApiTaskManager.Enums;
+using ApiTaskManager.Helpers;
 using ApiTaskManager.Interfaces;
 using ApiTaskManager.Models;
-using ApiTaskManager.Request;
+using ApiTaskManager.Models.Request;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace ApiTaskManager.Endpoints;
 
@@ -18,53 +20,47 @@ public static class ApiTaskManagerEndpoints
     {
         var projectEndpoints = api.MapGroup("Project").WithTags("Project");
 
-        projectEndpoints.MapGet("/listall", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapGet("/listall", async ([FromServices] IProjetoService projetoService) =>
         {
-            return await taskManagerService.GetAllAsync();
+            return await projetoService.GetAllProjectsAsync();
         })
         .Produces<List<Projeto>>()
         .WithOpenApiTaskManager("Consultartodososprojetos", "Consulta todos os projetos ativos na equipe");
 
-        projectEndpoints.MapGet("/{idProject}", async ([FromServices] ITaskManagerService taskManagerService, int idProject) =>
+        projectEndpoints.MapGet("/{idProject}", async (int idProject, [FromServices] IProjetoService projetoService) =>
         {
-            return await taskManagerService.GetByIdAsync(idProject);
+            return await projetoService.GetByIdAsync(idProject);
         })
         .WithOpenApiTaskManager("ConsultarProjeto", "Consultar detalhes do projeto");
 
-        projectEndpoints.MapPost("/newproject", async (ProjectRequest request, [FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapPost("/newproject", async (ProjetoRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            var projeto = await taskManagerService.CreateAsync(request);
+            var projeto = await projetoService.CreateProjectAsync(request);
             return Results.Created($"/projetos/{projeto.Id}", projeto);
         })
         .WithOpenApiTaskManager("CriarProjeto", "CriaNovoProjeto");
 
-        projectEndpoints.MapPost("/{idProject}/update", static async (ProjectRequest request, [FromServices] ITaskManagerService taskManagerService, int idProject) =>
+        projectEndpoints.MapPost("/{idProject}/update", static async (int idProject, ProjetoRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            return await taskManagerService.UpdateAsync(idProject, request);
+            return await projetoService.UpdateProjectAsync(idProject, request);
         })
         .WithOpenApiTaskManager("AtualizarProjeto", "Atualiza os Dados do Projeto");
 
-        projectEndpoints.MapPost("/{idProject}/close", async ([FromServices] ITaskManagerService taskManagerService, int idProject) =>
+        projectEndpoints.MapPost("/{idProject}/close", async (int idProject, [FromServices] IProjetoService projetoService) =>
         {
-            return await taskManagerService.CancelAsync(idProject);
+            return await projetoService.CancelProjectAsync(idProject);
         })
-        .WithOpenApiTaskManager("FinalizarTarefa", "Finaliza o Projeto");
+        .WithOpenApiTaskManager("FinalizarProjeto", "Finaliza o Projeto");
 
-        projectEndpoints.MapPut("/{project}/newtask/", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapPut("/{idProject}/newtask/", async (int idProject, TarefaRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.CreateTaskAsync(idProject, request);
         })
         .WithOpenApiTaskManager("IncluirTarefaNoProjeto", "Inclui nova tarefa no projeto");
 
-        projectEndpoints.MapGet("/{project}/alltasks", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapGet("/{idProject}/tasksbystatus/{status}", async (int idProject, Status status, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
-        })
-        .WithOpenApiTaskManager("Consultartodasastarefas", "Consulta todas as tarefas de um projeto");
-
-        projectEndpoints.MapGet("/{project}/tasksbystatus/{status}", async ([FromServices] ITaskManagerService taskManagerService) =>
-        {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.GetprojectTasksByStatusAsync(idProject, status);
         })
         .WithOpenApiTaskManager("ConsultarTarefasPorStatus", "Consulta as tarefas do projeto Por status");
     }
@@ -73,28 +69,34 @@ public static class ApiTaskManagerEndpoints
     {
         var projectEndpoints = api.MapGroup("Tasks").WithTags("Tasks");
 
-        projectEndpoints.MapGet("/{task}", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapGet("/{idTask}", async (int idTask, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.GetTaskByIDAsync(idTask);
         })
         .WithOpenApiTaskManager("ConsultarTarefa", "Consulta os detalhes de uma tarefa");
 
-        projectEndpoints.MapPost("/{task}/update", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapPost("/{idTask}/update", async (int idTask, TarefaUpdateRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.UpdateTaskAsync(request);
         })
         .WithOpenApiTaskManager("AtualizarTarefa", "Atualiza os dados da tarefa");
 
-        projectEndpoints.MapPost("/{task}/addcomment", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapPost("/{idTask}/addcomment", async (int idTask, [FromBody] string request, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.AddCommentAsync(idTask, request);
         })
         .WithOpenApiTaskManager("IncluirComentário", "Adiciona um novo comentário na tarefa");
 
-        projectEndpoints.MapPost("/{task}/close", async ([FromServices] ITaskManagerService taskManagerService) =>
+        projectEndpoints.MapPost("/close/{idTask}", async (int idTask, [FromServices] IProjetoService projetoService) =>
         {
-            throw new NotImplementedException("Serviço Não Implementado");
+            return await projetoService.CloseTaskAsync(idTask);
         })
         .WithOpenApiTaskManager("FinalizarTarefa", "Finaliza a Tarefa");
+
+        projectEndpoints.MapGet("/{idProject}/alltasks", async (int idProject, [FromServices] IProjetoService projetoService) =>
+        {
+            return await projetoService.GetAllTasksByProjectAsync(idProject);
+        })
+        .WithOpenApiTaskManager("Consultartodasastarefas", "Consulta todas as tarefas de um projeto");
     }
 }

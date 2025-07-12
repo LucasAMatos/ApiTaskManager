@@ -1,4 +1,4 @@
-﻿using ApiTaskManager.Response;
+﻿using ApiTaskManager.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
@@ -13,7 +13,7 @@ namespace ApiTaskManager.Endpoints
             {
                 var report = await healthCheckService.CheckHealthAsync();
 
-                var result = new
+                return new
                 {
                     status = report.Status.ToString(),
                     checks = report.Entries.Select(entry => new
@@ -31,29 +31,12 @@ namespace ApiTaskManager.Endpoints
                         message = entry.Value.Description
                     })
                 };
-
-                int statusCode = StatusCodes.Status204NoContent;
-
-                switch (report.Status)
-                {
-                    case HealthStatus.Unhealthy:
-                        statusCode = StatusCodes.Status503ServiceUnavailable;
-                        break;
-                    case HealthStatus.Degraded:
-                        statusCode = StatusCodes.Status500InternalServerError;
-                        break;
-                    case HealthStatus.Healthy:
-                        statusCode = StatusCodes.Status200OK;
-                        break;
-                    default:
-                        break;
-                }
             })
             .WithOpenApi(operation => new(operation)
             {
                 OperationId = "HealthCheck",
                 Summary = "Status da API",
-                Tags = new List<OpenApiTag> { new OpenApiTag { Name = "HealthCheck" } }
+                Tags = [new() { Name = "HealthCheck" }]
             })
             .Produces<OutputHealthCheck>(StatusCodes.Status200OK)
             .Produces<OutputHealthCheck>(StatusCodes.Status500InternalServerError)
