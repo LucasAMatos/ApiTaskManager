@@ -1,6 +1,8 @@
 using ApiTaskManager.Middlewares;
 using ApiTaskManager.Database;
 using Microsoft.EntityFrameworkCore;
+using ApiTaskManager.Interfaces;
+using ApiTaskManager.Services;
 
 namespace ApiTaskManager.Helpers
 {
@@ -21,6 +23,8 @@ namespace ApiTaskManager.Helpers
             services.AddHealthChecks();
             services.AddDbContext<ApiDbContext>(options =>
                 options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+
+            services.AddScoped<ITaskManagerService, TaskManagerService>();
 
             return services;
         }

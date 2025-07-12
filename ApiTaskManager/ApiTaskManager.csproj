@@ -18,4 +18,8 @@
     <PackageReference Include="Ogu.FluentValidation.AspNetCore.Attribute" Version="1.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

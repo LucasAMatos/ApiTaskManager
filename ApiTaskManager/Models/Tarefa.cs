@@ -1,4 +1,6 @@
-﻿namespace ApiTaskManager.Models;
+﻿using ApiTaskManager.Enums;
+
+namespace ApiTaskManager.Models;
 public class Tarefa
 {
     public int Id { get; set; }
@@ -9,7 +11,7 @@ public class Tarefa
 
     public DateOnly DataDeVencimento { get; set; }
 
-    public int Status { get; set; }
+    public Status Status { get; set; }
 
-    public Usuario usuario { get; set; }
+    public string usuario { get; set; }
 }

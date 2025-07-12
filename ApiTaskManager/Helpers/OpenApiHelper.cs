@@ -1,4 +1,4 @@
-﻿using ApiTaskManager.OutPut;
+﻿using ApiTaskManager.Response;
 using Microsoft.OpenApi.Models;
 
 namespace ApiTaskManager.Helpers;
