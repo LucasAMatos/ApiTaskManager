@@ -7,7 +7,7 @@ public class TarefaHistorico
     public int IdTarefa { get; set; }
     public required string Titulo { get; set; }
     public required string Descricao { get; set; }
-    public DateOnly DataDeVencimento { get; set; }
+    public DateTime DataDeVencimento { get; set; }
     public Status Status { get; set; }
     public required string Usuario { get; set; }
     public Prioridade Prioridade { get; set; }

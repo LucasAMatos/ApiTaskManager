@@ -8,7 +8,7 @@ namespace ApiTaskManager.Interfaces
     {
         List<string> GetAllProjects();
         List<string> GetAllProjectsByStatus(Status status);
-        Projeto? GetProjecById(int idProjeto);
+        Projeto? GetProjectById(int idProjeto);
         int CreateProject(ProjetoRequest projetoRequest);
         void UpdateProject(int idProjeto, ProjetoRequest projetoAtualizado);
         void DeleteProject(int idProjeto);

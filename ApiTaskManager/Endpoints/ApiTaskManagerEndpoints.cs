@@ -36,7 +36,7 @@ public static class ApiTaskManagerEndpoints
 
         projectEndpoints.MapGet("/{idProject}",  (int idProject, [FromServices] IProjetoService projetoService) =>
         {
-            return projetoService.GetProjecById(idProject);
+            return projetoService.GetProjectById(idProject);
         })
         .WithOpenApiTaskManager("ConsultarProjeto", "Consultar detalhes do projeto");
 

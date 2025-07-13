@@ -21,11 +21,11 @@ namespace ApiTaskManager.Helpers
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
             services.AddHealthChecks();
-            services.AddDbContext<ApiDbContext>(options =>
+            services.AddDbContext<DbContext>(options =>
                 options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
 
             services.AddScoped<IProjetoService, ProjetoService>();
-            services.AddScoped<DAL>();
+            services.AddScoped<IDAL, DAL>();
 
             return services;
         }

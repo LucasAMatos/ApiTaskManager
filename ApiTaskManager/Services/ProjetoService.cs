@@ -9,14 +9,14 @@ using Microsoft.Identity.Client;
 
 namespace ApiTaskManager.Services
 {
-    public class ProjetoService(DAL _DAL) : IProjetoService
+    public class ProjetoService(IDAL _DAL) : IProjetoService
     {
         #region Projetos
         public List<string> GetAllProjects() => [.. _DAL.GetAll<Projeto>().Select(p => p.Nome)];
 
         public List<string> GetAllProjectsByStatus(Status status) => [.. _DAL.GetAll<Projeto>().Where(p => p.Status == status).Select(p => p.Nome)];
 
-        public Projeto? GetProjecById(int id) => _DAL.GetById<Projeto>(id);
+        public Projeto? GetProjectById(int id) => _DAL.GetById<Projeto>(id);
 
         public int CreateProject(ProjetoRequest projetoRequest)
         {
@@ -45,8 +45,6 @@ namespace ApiTaskManager.Services
         public void DeleteProject(int idProjeto)
         {
             var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-
-            if (_projeto == null) return;
 
             _DAL.Delete<Projeto>(_projeto);
         }

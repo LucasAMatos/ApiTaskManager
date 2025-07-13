@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiTaskManager.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace ApiTaskManager.Data
 {
-    public class DAL(ApiDbContext context)
+    public class DAL(DbContext context) : IDAL
     {
-        private readonly ApiDbContext _context = context;
+        private readonly DbContext _context = context;
 
         public T Create<T>(T entity) where T : class
         {
@@ -20,11 +21,6 @@ namespace ApiTaskManager.Data
             return [.. context.Set<T>()];
         }
 
-        public T? GetById<T>(int id) where T : class
-        {
-            return context.Set<T>().Find(id);
-        }
-
         public void Update<T>(T entity) where T : class
         {
             _context.Set<T>().Update(entity);
@@ -35,6 +31,11 @@ namespace ApiTaskManager.Data
         {
             _context.Set<T>().Remove(entity);
             _context.SaveChanges();
+        }
+
+        public T? GetById<T>(int id) where T : class
+        {
+            return context.Set<T>().Find(id);
         }
 
         public T? GetById<T>(int id, params Expression<Func<T, object>>[] includes) where T : class
