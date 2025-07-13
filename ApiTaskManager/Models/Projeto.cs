@@ -8,6 +8,7 @@ public class Projeto
     public required string Nome { get; set; }
     public DateTime DataDeCriacao { get; set; }
     public required string Descricao { get; set; }
-    public string AlteradoPor { get; set; }
+    public required string AlteradoPor { get; set; }
     public Status Status { get; set; }
+    public List<Tarefa> Tarefas { get; set; } = [];
 }

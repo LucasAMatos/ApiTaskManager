@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiTaskManager.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250712203406_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250712212441_adjust_tarefa_with_status")]
+    partial class adjust_tarefa_with_status
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,7 @@ namespace ApiTaskManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CriadoPor")
+                    b.Property<string>("AlteradoPor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -71,6 +71,12 @@ namespace ApiTaskManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProjetoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -84,7 +90,21 @@ namespace ApiTaskManager.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjetoId");
+
                     b.ToTable("Tarefas");
+                });
+
+            modelBuilder.Entity("ApiTaskManager.Models.Tarefa", b =>
+                {
+                    b.HasOne("ApiTaskManager.Models.Projeto", null)
+                        .WithMany("tarefas")
+                        .HasForeignKey("ProjetoId");
+                });
+
+            modelBuilder.Entity("ApiTaskManager.Models.Projeto", b =>
+                {
+                    b.Navigation("tarefas");
                 });
 #pragma warning restore 612, 618
         }

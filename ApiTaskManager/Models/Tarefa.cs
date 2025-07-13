@@ -13,5 +13,7 @@ public class Tarefa
 
     public Status Status { get; set; }
 
-    public string usuario { get; set; }
+    public required string usuario { get; set; }
+
+    public Prioridade Prioridade { get; set; }
 }
