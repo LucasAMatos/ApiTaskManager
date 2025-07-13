@@ -1,18 +1,14 @@
-﻿using System.Net;
+﻿using Azure;
+using System.Net;
 using System.Text.Json;
+using YamlDotNet.Core.Tokens;
 
 namespace ApiTaskManager.Middlewares;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
 
     public async Task Invoke(HttpContext context)
     {
@@ -35,6 +31,27 @@ public class ExceptionHandlingMiddleware
             var json = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(json);
 
+        }
+        catch (BadHttpRequestException badHttpRequestEx)
+        {
+            _logger.LogError(badHttpRequestEx, "Erro de Conversão");
+
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.Response.ContentType = "application/json";
+
+            var msgException = $"{badHttpRequestEx.Message}";
+
+            if (badHttpRequestEx.InnerException != null)
+            {
+                msgException += $" - InnerException: {badHttpRequestEx.InnerException.Message}";
+            }
+            var response = new
+            {
+                error = msgException
+            };
+
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
         }
         catch (Exception ex)
         {
