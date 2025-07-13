@@ -20,6 +20,22 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context); // Chama o próximo middleware
         }
+        catch (ApplicationException appEx)
+        {
+            _logger.LogError(appEx, "Erro de Negócio");
+
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                error = $"{appEx.Message}"
+            };
+
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
+
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro inesperado ocorreu.");
@@ -29,7 +45,7 @@ public class ExceptionHandlingMiddleware
 
             var response = new
             {
-                error = $"Ocorreu um erro inesperado. Erro original: {ex.Message}"
+                error = $"Ocorreu um erro inesperado: {ex.Message}"
             };
 
             var json = JsonSerializer.Serialize(response);

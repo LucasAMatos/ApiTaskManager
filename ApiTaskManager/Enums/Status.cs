@@ -12,6 +12,4 @@ public enum Status
     EmAndamento = 2,
     [Description("Concluida")]
     Concluida = 3,
-    [Description("Cancelado")]
-    Cancelado = 4,
 }

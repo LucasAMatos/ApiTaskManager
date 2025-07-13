@@ -55,11 +55,11 @@ public static class ApiTaskManagerEndpoints
 
         projectEndpoints.MapPost("/{idProject}/close", async (int idProject, [FromServices] IProjetoService projetoService) =>
         {
-            return await projetoService.CancelProjectAsync(idProject);
+            return await projetoService.CloseProjectAsync(idProject);
         })
         .WithOpenApiTaskManager("FinalizarProjeto", "Finaliza o Projeto");
 
-        projectEndpoints.MapPut("/{idProject}/newTask/", async (int idProject, TarefaRequest request, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapPut("/{idProject}/createTask/", async (int idProject, TarefaRequest request, [FromServices] IProjetoService projetoService) =>
         {
             return await projetoService.CreateTaskAsync(idProject, request);
         })
