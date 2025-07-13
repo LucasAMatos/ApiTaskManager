@@ -1,5 +1,6 @@
 ﻿using ApiTaskManager.Data;
 using ApiTaskManager.Enums;
+using ApiTaskManager.Extensions;
 using ApiTaskManager.Interfaces;
 using ApiTaskManager.Models;
 using ApiTaskManager.Models.Request;
@@ -7,26 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiTaskManager.Services
 {
-    public class ProjetoService(ApiDbContext context) : IProjetoService
+    public class ProjetoService(DAL _DAL) : IProjetoService
     {
-        private readonly ApiDbContext _context = context;
+        #region Projetos
+        public List<string> GetAllProjects() => [.. _DAL.GetAll<Projeto>().Select(p => p.Nome)];
 
-        public async Task<List<string>> GetAllProjectsAsync()
-        {
-            return await _context.Projetos.Select(p => p.Nome).ToListAsync();
-        }
+        public  List<string> GetAllProjectsByStatus(Status status) => [.. _DAL.GetAll<Projeto>().Where(p => p.Status == status).Select(p => p.Nome)];
 
-        public async Task<List<string>> GetAllProjectsByStatusAsync(Status status)
-        {
-            return await _context.Projetos.Where(p => p.Status == status).Select(p => p.Nome).ToListAsync();
-        }
+        public Projeto? GetProjecById(int id) => _DAL.GetById<Projeto>(id);
 
-        public async Task<Projeto?> GetByIdAsync(int id)
-        {
-            return await _context.Projetos.FindAsync(id);
-        }
-
-        public async Task<Projeto> CreateProjectAsync(ProjetoRequest projetoRequest)
+        public int CreateProject(ProjetoRequest projetoRequest)
         {
             var response = new Projeto
             {
@@ -35,114 +26,105 @@ namespace ApiTaskManager.Services
                 DataDeCriacao = DateTime.UtcNow,
                 AlteradoPor = projetoRequest.Usuario ?? string.Empty,
             };
-            _context.Projetos.Add(response);
-            await _context.SaveChangesAsync();
-            return response;
+            
+            return _DAL.Create<Projeto>(response).Id;
         }
 
-        public async Task<Projeto?> UpdateProjectAsync(int id, ProjetoRequest projetoAtualizado)
+        public void UpdateProject(int idProjeto, ProjetoRequest projetoAtualizado)
         {
-            var projeto = await _context.Projetos.FindAsync(id);
-            if (projeto == null) return null;
+            var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
-            projeto.Nome = projetoAtualizado.Nome;
-            projeto.Descricao = projetoAtualizado.Descricao ?? string.Empty;
-            projeto.AlteradoPor = projetoAtualizado.Usuario ?? string.Empty;
+            _projeto.Nome = projetoAtualizado.Nome;
+            _projeto.Descricao = projetoAtualizado.Descricao ?? string.Empty;
+            _projeto.AlteradoPor = projetoAtualizado.Usuario ?? string.Empty;
 
-            await _context.SaveChangesAsync();
-            return projeto;
+            _DAL.Update<Projeto>(_projeto);
         }
 
-        public async Task<bool> CloseProjectAsync(int idProjeto)
+        public void DeleteProject(int idProjeto)
         {
-            var _projeto = await _context.Projetos.Include(p => p.Tarefas).FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-            if (_projeto == null) return false;
+            var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
-            if (_projeto.Tarefas.Any(t => t.Status != Status.Concluida))
-            {
-                throw new ApplicationException($"Projeto possui tarefas em aberto. Será necessário concluir ou cancelar as tarefas do projeto {_projeto.Nome}");
-            }
+            if (_projeto == null) return;
 
-            _context.Projetos.Remove(_projeto);
-
-            await _context.SaveChangesAsync();
-            return true;
+            _DAL.Delete<Projeto>(_projeto);
         }
 
-        public async Task<Tarefa> CreateTaskAsync(int idProjeto, TarefaRequest task)
+        public List<Tarefa> GetprojectTasksByStatus(int idProjeto, Status status)
         {
+            var _projeto = _DAL.GetById<Projeto>(idProjeto, p => p.Tarefas) ?? throw new ApplicationException("Projeto não encontrado");
+
+            return [.. _projeto.Tarefas.Where(t => t.Status == status)];
+        }
+
+        public List<string> GetAllTasksByProject(int idProjeto)
+        {
+            var _projeto = _DAL.GetById<Projeto>(idProjeto, p => p.Tarefas) ?? throw new ApplicationException("Projeto não encontrado");
+
+            return [.. _projeto.Tarefas.Select(t => t.Titulo)];
+        }
+
+        #endregion Projetos
+
+        #region Tarefas
+        public Tarefa CreateTask(int idProjeto, TarefaRequest task)
+        {
+            var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
+            
             Tarefa novaTarefa = new()
             {
                 Titulo = task.Titulo,
                 Descricao = task.Descricao,
-                usuario = task.UsuarioResponsavel,
+                Usuario = task.UsuarioResponsavel,
                 DataDeVencimento = task.DataDeVencimento,
                 Prioridade = task.Prioridade,
-                Status = Enums.Status.EmAndamento,
+                Status = Enums.Status.EmAndamento,                
             };
 
-            // Busca o projeto existente
-            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-            projeto.Status = Enums.Status.EmAndamento;
+            _projeto.Tarefas.Add(novaTarefa);
 
-            // Adiciona a tarefa
-            projeto.Tarefas.Add(novaTarefa);
-
-            // Salva alterações
-            await _context.SaveChangesAsync();
+            _DAL.Update<Projeto>(_projeto);
+            _DAL.Create<TarefaHistorico>(novaTarefa.ToHistorico(task.CriadoPor, "Criação Tarefa"));
 
             return novaTarefa;
         }
 
-        public async Task<List<string>> GetAllTasksByProjectAsync(int idProjeto)
+        public Tarefa GetTaskByID(int idTarefa)
         {
-            var projeto = await _context.Projetos
-                .Include(p => p.Tarefas)
-                .FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-
-            return [.. projeto.Tarefas.Select(t => t.Titulo)];
+            return _DAL.GetById<Tarefa>(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
         }
 
-        public async Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status)
+        public void UpdateTask(int idTarefa, TarefaUpdateRequest request)
         {
-            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-
-            return [.. projeto.Tarefas.Where(t => t.Status == status)];
-        }
-
-        public async Task<Tarefa> GetTaskByIDAsync(int idTarefa)
-        {
-            return await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
-        }
-
-        public async Task<Tarefa> UpdateTaskAsync(int idTarefa, TarefaUpdateRequest request)
-        {
-            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
-
+            var tarefa = _DAL.GetById<Tarefa>(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
             tarefa.Titulo = request.Titulo;
             tarefa.Descricao = request.Descricao;
             tarefa.DataDeVencimento = request.DataDeVencimento;
-            tarefa.Status = request.status;
+            tarefa.Status = request.Status;
 
-            await _context.SaveChangesAsync();
-
-            return tarefa;
+            _DAL.Update<Tarefa>(tarefa);
+            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(request.AlteradoPor, "Alteração Tarefa"));
         }
 
-        public Task<bool> AddCommentAsync(int idTask, string request)
+        public void AddComment(int idTask, ComentarioRequest request)
         {
-            throw new NotImplementedException();
+            var tarefa = _DAL.GetById<Tarefa>(request.IdTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
+
+            tarefa.Comentarios.Add(request.ToComentario());
+
+            _DAL.Update<Tarefa>(tarefa);
+            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(request.Usuario, "Novo Comentário na Tarefa"));
         }
 
-        public async Task<bool> CloseTaskAsync(int idTarefa)
+        public void CloseTask(int idTarefa)
         {
-            var _tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
+            var _tarefa = _DAL.GetById<Tarefa>(idTarefa);
 
-            _context.Tarefas.Remove(_tarefa);
+            if (_tarefa == null) return;
 
-            await _context.SaveChangesAsync();
-            return true;
+            _DAL.Delete<Tarefa>(_tarefa);
         }
+        #endregion Tarefas
     }
 }

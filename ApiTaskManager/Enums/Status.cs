@@ -4,8 +4,6 @@ namespace ApiTaskManager.Enums;
 
 public enum Status
 {
-    [Description("Não Iniciado")]
-    NaoIniciado = 0,
     [Description("Pendente")]
     Pendente = 1,
     [Description("Em Andamento")]

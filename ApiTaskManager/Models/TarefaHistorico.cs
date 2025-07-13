@@ -1,16 +1,18 @@
 ﻿using ApiTaskManager.Enums;
 
 namespace ApiTaskManager.Models;
-public class Tarefa
+public class TarefaHistorico
 {
     public int Id { get; set; }
+    public int IdTarefa { get; set; }
     public required string Titulo { get; set; }
     public required string Descricao { get; set; }
     public DateOnly DataDeVencimento { get; set; }
     public Status Status { get; set; }
     public required string Usuario { get; set; }
     public Prioridade Prioridade { get; set; }
-    public List<Comentario> Comentarios { get; set; } = [];
     public int ProjetoId { get; set; }
-    public Projeto Projeto { get; set; } = null!;
+    public required string AlteradoPor { get; set; }
+    public string DescricaoDaAlteracao { get; set; }
+    public DateTime DataAlteracao { get; set; }
 }

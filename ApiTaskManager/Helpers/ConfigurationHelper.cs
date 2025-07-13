@@ -25,7 +25,8 @@ namespace ApiTaskManager.Helpers
                 options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
 
             services.AddScoped<IProjetoService, ProjetoService>();
-            
+            services.AddScoped<DAL>();
+
             return services;
         }
       
