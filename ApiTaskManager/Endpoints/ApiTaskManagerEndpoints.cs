@@ -42,8 +42,8 @@ public static class ApiTaskManagerEndpoints
 
         projectEndpoints.MapPost("/newProject", async (ProjetoRequest request, [FromServices] IProjetoService projetoService) =>
         {
-            var projeto = await projetoService.CreateProjectAsync(request);
-            return Results.Created($"/{projeto.Id}", projeto);
+            var id = await projetoService.CreateProjectAsync(request);
+            return Results.Created($"/{id}", request.Nome);
         })
         .WithOpenApiTaskManager("CriarProjeto", "CriaNovoProjeto");
 

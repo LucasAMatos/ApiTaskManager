@@ -7,4 +7,5 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
 {
     public DbSet<Projeto> Projetos => Set<Projeto>();
     public DbSet<Tarefa> Tarefas => Set<Tarefa>();
+    public DbSet<TarefaHistorico> TarefasHistorico => Set<TarefaHistorico>();
 }
