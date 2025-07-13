@@ -53,12 +53,17 @@ namespace ApiTaskManager.Services
             return projeto;
         }
 
-        public async Task<bool> CancelProjectAsync(int id)
+        public async Task<bool> CloseProjectAsync(int idProjeto)
         {
-            var projeto = await _context.Projetos.FindAsync(id);
-            if (projeto == null) return false;
+            var _projeto = await _context.Projetos.Include(p => p.Tarefas).FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
+            if (_projeto == null) return false;
 
-            projeto.Status = Enums.Status.Cancelado;
+            if (_projeto.Tarefas.Any(t => t.Status != Status.Concluida))
+            {
+                throw new ApplicationException($"Projeto possui tarefas em aberto. Será necessário concluir ou cancelar as tarefas do projeto {_projeto.Nome}");
+            }
+
+            _context.Projetos.Remove(_projeto);
 
             await _context.SaveChangesAsync();
             return true;
@@ -77,7 +82,7 @@ namespace ApiTaskManager.Services
             };
 
             // Busca o projeto existente
-            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new Exception("Projeto não encontrado");
+            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
             projeto.Status = Enums.Status.EmAndamento;
 
             // Adiciona a tarefa
@@ -93,26 +98,26 @@ namespace ApiTaskManager.Services
         {
             var projeto = await _context.Projetos
                 .Include(p => p.Tarefas)
-                .FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new Exception("Projeto não encontrado");
+                .FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
             return [.. projeto.Tarefas.Select(t => t.Titulo)];
         }
 
         public async Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status)
         {
-            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new Exception("Projeto não encontrado");
+            var projeto = await _context.Projetos.FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
             return [.. projeto.Tarefas.Where(t => t.Status == status)];
         }
 
         public async Task<Tarefa> GetTaskByIDAsync(int idTarefa)
         {
-            return await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
+            return await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
         }
 
         public async Task<Tarefa> UpdateTaskAsync(int idTarefa, TarefaUpdateRequest request)
         {
-            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
+            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
 
             tarefa.Titulo = request.Titulo;
@@ -132,9 +137,9 @@ namespace ApiTaskManager.Services
 
         public async Task<bool> CloseTaskAsync(int idTarefa)
         {
-            var tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new Exception("Tarefa não encontrada");
+            var _tarefa = await _context.Tarefas.FindAsync(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
-            tarefa.Status = Enums.Status.Concluida;
+            _context.Tarefas.Remove(_tarefa);
 
             await _context.SaveChangesAsync();
             return true;

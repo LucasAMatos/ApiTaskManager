@@ -11,7 +11,7 @@ namespace ApiTaskManager.Interfaces
         Task<Projeto?> GetByIdAsync(int id);
         Task<Projeto> CreateProjectAsync(ProjetoRequest projetoRequest);
         Task<Projeto?> UpdateProjectAsync(int id, ProjetoRequest projetoAtualizado);
-        Task<bool> CancelProjectAsync(int id);
+        Task<bool> CloseProjectAsync(int id);
         Task<Tarefa> CreateTaskAsync(int idProjeto, TarefaRequest task);
         Task<List<string>> GetAllTasksByProjectAsync(int idProjeto);
         Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status);
