@@ -29,8 +29,7 @@ public class ExceptionHandlingMiddleware
 
             var response = new
             {
-                error = "Ocorreu um erro inesperado. Tente novamente mais tarde.",
-                traceId = context.TraceIdentifier
+                error = $"Ocorreu um erro inesperado. Erro original: {ex.Message}"
             };
 
             var json = JsonSerializer.Serialize(response);

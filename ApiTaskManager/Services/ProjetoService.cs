@@ -89,9 +89,13 @@ namespace ApiTaskManager.Services
             return novaTarefa;
         }
 
-        public async Task<List<Tarefa>> GetAllTasksByProjectAsync(int idProjeto)
+        public async Task<List<string>> GetAllTasksByProjectAsync(int idProjeto)
         {
-            throw new NotImplementedException();
+            var projeto = await _context.Projetos
+                .Include(p => p.Tarefas)
+                .FirstOrDefaultAsync(p => p.Id == idProjeto) ?? throw new Exception("Projeto não encontrado");
+
+            return [.. projeto.Tarefas.Select(t => t.Titulo)];
         }
 
         public async Task<List<Tarefa>> GetprojectTasksByStatusAsync(int idProjeto, Status status)
@@ -115,6 +119,8 @@ namespace ApiTaskManager.Services
             tarefa.Descricao = request.Descricao;
             tarefa.DataDeVencimento = request.DataDeVencimento;
             tarefa.Status = request.status;
+
+            await _context.SaveChangesAsync();
 
             return tarefa;
         }

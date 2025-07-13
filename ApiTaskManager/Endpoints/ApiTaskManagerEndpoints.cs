@@ -70,6 +70,12 @@ public static class ApiTaskManagerEndpoints
             return await projetoService.GetprojectTasksByStatusAsync(idProject, status);
         })
         .WithOpenApiTaskManager("ConsultarTarefasPorStatus", "Consulta as tarefas do projeto Por status");
+
+        projectEndpoints.MapGet("/{idProject}/alltasks", async (int idProject, [FromServices] IProjetoService projetoService) =>
+        {
+            return await projetoService.GetAllTasksByProjectAsync(idProject);
+        })
+        .WithOpenApiTaskManager("Consultartodasastarefas", "Consulta todas as tarefas de um projeto");
     }
 
     private static void RegisterTaskEndpoints(this WebApplication api)
@@ -99,11 +105,5 @@ public static class ApiTaskManagerEndpoints
             return await projetoService.CloseTaskAsync(idTask);
         })
         .WithOpenApiTaskManager("FinalizarTarefa", "Finaliza a Tarefa");
-
-        projectEndpoints.MapGet("/{idProject}/alltasks", async (int idProject, [FromServices] IProjetoService projetoService) =>
-        {
-            return await projetoService.GetAllTasksByProjectAsync(idProject);
-        })
-        .WithOpenApiTaskManager("Consultartodasastarefas", "Consulta todas as tarefas de um projeto");
     }
 }
