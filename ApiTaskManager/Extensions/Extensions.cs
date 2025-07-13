@@ -5,7 +5,7 @@ namespace ApiTaskManager.Extensions;
 
 public static class Extensions
 {
-    public static TarefaHistorico ToHistorico(this Tarefa tarefa, string alteradoPor, string descricaoDaAlteracao)
+    public static TarefaHistorico ToHistorico(this Tarefa tarefa, Usuario alteradoPor, string descricaoDaAlteracao)
     {
         return new TarefaHistorico
         {
@@ -23,13 +23,13 @@ public static class Extensions
         };
     }
 
-    public static Comentario ToComentario(this ComentarioRequest comentarioRequest)
+    public static Comentario ToComentario(this ComentarioRequest comentarioRequest, Usuario usuarioComentario)
     {
         return new Comentario
         {
             conteudo = comentarioRequest.Comentario,
             IdTarefa = comentarioRequest.IdTarefa,
-            Usuario = comentarioRequest.Usuario,
+            Usuario = usuarioComentario,
         };
     }
 }
