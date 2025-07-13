@@ -19,12 +19,12 @@ namespace ApiTaskManagerTests.Extensions
                 Descricao = "Descrição da tarefa",
                 DataDeVencimento = new DateTime(2025, 12, 31),
                 Status = Status.Pendente,
-                Usuario = "usuario1",
+                Usuario = new Usuario { Nome = "usuario1" },
                 Prioridade = Prioridade.Alta,
                 ProjetoId = 10
             };
 
-            var alteradoPor = "admin";
+            var alteradoPor = new Usuario { Nome = "admin" };
             var descricaoAlteracao = "Alterado o status da tarefa";
 
             // Act
@@ -56,7 +56,7 @@ namespace ApiTaskManagerTests.Extensions
             };
 
             // Act
-            var comentario = comentarioRequest.ToComentario();
+            var comentario = comentarioRequest.ToComentario(new Usuario { Nome = "comentador1" });
 
             // Assert
             comentario.conteudo.Should().Be(comentarioRequest.Comentario);

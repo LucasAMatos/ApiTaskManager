@@ -6,6 +6,7 @@ using ApiTaskManager.Models;
 using ApiTaskManager.Models.Request;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using System.Threading.Tasks;
 
 namespace ApiTaskManager.Services
 {
@@ -20,12 +21,14 @@ namespace ApiTaskManager.Services
 
         public int CreateProject(ProjetoRequest projetoRequest)
         {
+            var _usuario = GetUsuarioByName(projetoRequest.Usuario);
+
             var response = new Projeto
             {
                 Nome = projetoRequest.Nome,
                 Descricao = projetoRequest.Descricao ?? string.Empty,
                 DataDeCriacao = DateTime.UtcNow,
-                AlteradoPor = projetoRequest.Usuario ?? string.Empty,
+                AlteradoPor = _usuario,
             };
 
             return _DAL.Create<Projeto>(response).Id;
@@ -33,11 +36,12 @@ namespace ApiTaskManager.Services
 
         public void UpdateProject(int idProjeto, ProjetoRequest projetoAtualizado)
         {
+            var _usuario = GetUsuarioByName(projetoAtualizado.Usuario);
             var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
             if (projetoAtualizado.Nome != null) _projeto.Nome = projetoAtualizado.Nome;
             if (projetoAtualizado.Descricao != null) _projeto.Descricao = projetoAtualizado.Descricao;
-            _projeto.AlteradoPor = projetoAtualizado.Usuario;
+            _projeto.AlteradoPor = _usuario;
 
             _DAL.Update<Projeto>(_projeto);
         }
@@ -75,11 +79,14 @@ namespace ApiTaskManager.Services
                 throw new ApplicationException($"Projeto {idProjeto}-{_projeto.Nome} Possui quantidade máxima de tarefas atribuidas.");
             }
 
+            var _usuario = GetUsuarioByName(task.UsuarioResponsavel);
+            var _criadoPor = GetUsuarioByName(task.CriadoPor);
+
             Tarefa novaTarefa = new()
             {
                 Titulo = task.Titulo,
                 Descricao = task.Descricao,
-                Usuario = task.UsuarioResponsavel,
+                Usuario = _usuario,
                 DataDeVencimento = task.DataDeVencimento,
                 Prioridade = task.Prioridade,
                 Status = Enums.Status.EmAndamento,                
@@ -88,7 +95,7 @@ namespace ApiTaskManager.Services
             _projeto.Tarefas.Add(novaTarefa);
 
             _DAL.Update<Projeto>(_projeto);
-            _DAL.Create<TarefaHistorico>(novaTarefa.ToHistorico(task.CriadoPor, "Criação Tarefa"));
+            _DAL.Create<TarefaHistorico>(novaTarefa.ToHistorico(_criadoPor, "Criação Tarefa"));
 
             return novaTarefa;
         }
@@ -102,24 +109,27 @@ namespace ApiTaskManager.Services
         {
             var tarefa = _DAL.GetById<Tarefa>(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
+            var _AlteradoPor = GetUsuarioByName(request.AlteradoPor);
+
             if (request.Titulo != null) tarefa.Titulo = request.Titulo;
             if (request.Descricao != null) tarefa.Descricao = request.Descricao;
             if (request.DataDeVencimento.HasValue) tarefa.DataDeVencimento = request.DataDeVencimento.Value;
             if (request.Status.HasValue) tarefa.Status = request.Status.Value;
-            if (request.UsuarioResponsavel != null) tarefa.Usuario = request.UsuarioResponsavel;
+            if (request.UsuarioResponsavel != null) tarefa.Usuario = GetUsuarioByName(request.UsuarioResponsavel);
 
             _DAL.Update<Tarefa>(tarefa);
-            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(request.AlteradoPor, "Alteração Tarefa"));
+            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(_AlteradoPor, "Alteração Tarefa"));
         }
 
         public void AddComment(int idTask, ComentarioRequest request)
         {
+            var _usuarioComentario = GetUsuarioByName(request.Usuario);
             var tarefa = _DAL.GetById<Tarefa>(request.IdTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
-            tarefa.Comentarios.Add(request.ToComentario());
+            tarefa.Comentarios.Add(request.ToComentario(_usuarioComentario));
 
             _DAL.Update<Tarefa>(tarefa);
-            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(request.Usuario, "Novo Comentário na Tarefa"));
+            _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(_usuarioComentario, "Novo Comentário na Tarefa"));
         }
 
         public void CloseTask(int idTarefa)
@@ -131,5 +141,12 @@ namespace ApiTaskManager.Services
             _DAL.Delete<Tarefa>(_tarefa);
         }
         #endregion Tarefas
+
+        #region Usuarios
+        public Usuario? GetUsuarioByName(string nome)
+        {
+            return _DAL.GetAll<Usuario>().First(u => u.Nome == nome) ?? throw new ApplicationException("Usuário não encontrado");
+        }
+        #endregion
     }
 }

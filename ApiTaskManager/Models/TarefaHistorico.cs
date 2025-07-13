@@ -9,10 +9,10 @@ public class TarefaHistorico
     public required string Descricao { get; set; }
     public DateTime DataDeVencimento { get; set; }
     public Status Status { get; set; }
-    public required string Usuario { get; set; }
+    public required Usuario Usuario { get; set; }
     public Prioridade Prioridade { get; set; }
     public int ProjetoId { get; set; }
-    public required string AlteradoPor { get; set; }
+    public required Usuario AlteradoPor { get; set; }
     public string DescricaoDaAlteracao { get; set; }
     public DateTime DataAlteracao { get; set; }
 }

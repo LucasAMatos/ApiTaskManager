@@ -24,27 +24,9 @@ namespace ApiTaskManager.Tests.Services
         }
 
         [Fact]
-        public void GetAllProjects_DeveRetornarListaDeNomes()
-        {
-            // Arrange
-            var projetos = new List<Projeto>
-            {
-                new() { Nome = "Projeto 1", Descricao = "Descricao", AlteradoPor = "alterado"},
-                new() { Nome = "Projeto 2", Descricao = "Descricao", AlteradoPor = "alterado"}
-            };
-            _mockDal.Setup(d => d.GetAll<Projeto>()).Returns(projetos);
-
-            // Act
-            var resultado = _service.GetAllProjects();
-
-            // Assert
-            resultado.Should().BeEquivalentTo(new List<string> { "Projeto 1", "Projeto 2" });
-        }
-
-        [Fact]
         public void GetProjectById_DeveRetornarProjetoQuandoExistir()
         {
-            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = "alterado" };
+            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = new Usuario { Nome = "alterado" } };
             _mockDal.Setup(d => d.GetById<Projeto>(1)).Returns(projeto);
 
             var resultado = _service.GetProjectById(1);
@@ -67,6 +49,8 @@ namespace ApiTaskManager.Tests.Services
             _mockDal.Setup(d => d.Create(It.IsAny<Projeto>()))
                 .Returns((Projeto p) => { p.Id = 99; return p; });
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
+
             // Act
             var id = _service.CreateProject(request);
 
@@ -79,6 +63,8 @@ namespace ApiTaskManager.Tests.Services
         {
             _mockDal.Setup(d => d.GetById<Projeto>(1)).Returns((Projeto)null);
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
+
             var request = new ProjetoRequest { Nome = "Novo", Descricao = "x", Usuario = "admin" };
 
             Action act = () => _service.UpdateProject(1, request);
@@ -89,9 +75,17 @@ namespace ApiTaskManager.Tests.Services
         [Fact]
         public void UpdateProject_ComNomeEDescricao_DeveAtualizarTudo()
         {
-            var projeto = new Projeto { Id = 1, Nome = "Antigo", Descricao = "Velho", AlteradoPor = "x" };
+            var projeto = new Projeto
+            {
+                Id = 1,
+                Nome = "Antigo",
+                Descricao = "Velho",
+                AlteradoPor = new Usuario { Nome = "x" }
+            };
 
             _mockDal.Setup(d => d.GetById<Projeto>(1)).Returns(projeto);
+
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
 
             var request = new ProjetoRequest
             {
@@ -104,16 +98,24 @@ namespace ApiTaskManager.Tests.Services
 
             projeto.Nome.Should().Be("Novo");
             projeto.Descricao.Should().Be("Atualizado");
-            projeto.AlteradoPor.Should().Be("admin");
+            projeto.AlteradoPor.Nome.Should().Be("admin");
             _mockDal.Verify(d => d.Update(projeto), Times.Once);
         }
 
         [Fact]
         public void UpdateProject_SemNome_ComDescricao()
         {
-            var projeto = new Projeto { Id = 2, Nome = "Original", Descricao = "Original", AlteradoPor = "x" };
+            var projeto = new Projeto 
+            { 
+                Id = 2, 
+                Nome = "Original", 
+                Descricao = "Original", 
+                AlteradoPor = new Usuario { Nome = "x" } 
+            };
 
             _mockDal.Setup(d => d.GetById<Projeto>(2)).Returns(projeto);
+
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
 
             var request = new ProjetoRequest
             {
@@ -126,17 +128,18 @@ namespace ApiTaskManager.Tests.Services
 
             projeto.Nome.Should().Be("Original");
             projeto.Descricao.Should().Be("Nova descrição");
-            projeto.AlteradoPor.Should().Be("admin");
+            projeto.AlteradoPor.Nome.Should().Be("admin");
             _mockDal.Verify(d => d.Update(projeto), Times.Once);
         }
 
         [Fact]
         public void UpdateProject_ComNome_SemDescricao()
         {
-            var projeto = new Projeto { Id = 3, Nome = "Old", Descricao = "Old", AlteradoPor = "x" };
+            var projeto = new Projeto { Id = 3, Nome = "Old", Descricao = "Old", AlteradoPor = new Usuario { Nome = "x" } };
 
             _mockDal.Setup(d => d.GetById<Projeto>(3)).Returns(projeto);
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
             var request = new ProjetoRequest
             {
                 Nome = "Atualizado",
@@ -148,16 +151,18 @@ namespace ApiTaskManager.Tests.Services
 
             projeto.Nome.Should().Be("Atualizado");
             projeto.Descricao.Should().Be("Old");
-            projeto.AlteradoPor.Should().Be("admin");
+            projeto.AlteradoPor.Nome.Should().Be("admin");
             _mockDal.Verify(d => d.Update(projeto), Times.Once);
         }
 
         [Fact]
         public void UpdateProject_SemNomeESemDescricao()
         {
-            var projeto = new Projeto { Id = 4, Nome = "N", Descricao = "D", AlteradoPor = "x" };
+            var projeto = new Projeto { Id = 4, Nome = "N", Descricao = "D", AlteradoPor = new Usuario { Nome = "x" } };
 
             _mockDal.Setup(d => d.GetById<Projeto>(4)).Returns(projeto);
+
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
 
             var request = new ProjetoRequest
             {
@@ -170,7 +175,7 @@ namespace ApiTaskManager.Tests.Services
 
             projeto.Nome.Should().Be("N");
             projeto.Descricao.Should().Be("D");
-            projeto.AlteradoPor.Should().Be("admin");
+            projeto.AlteradoPor.Nome.Should().Be("admin");
             _mockDal.Verify(d => d.Update(projeto), Times.Once);
         }
 
@@ -191,7 +196,7 @@ namespace ApiTaskManager.Tests.Services
         public void DeleteProject_ProjetoExiste_DeveChamarDelete()
         {
             // Arrange
-            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Original", AlteradoPor = "x" };
+            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Original", AlteradoPor = new Usuario { Nome = "x" } };
             _mockDal.Setup(d => d.GetById<Projeto>(1)).Returns(projeto);
 
             // Act
@@ -207,8 +212,8 @@ namespace ApiTaskManager.Tests.Services
         {
             var projetos = new List<Projeto>
             {
-                new() { Nome = "Projeto 1",AlteradoPor ="Usuario",Descricao="descricao1", Status = Status.EmAndamento },
-                new() { Nome = "Projeto 2",AlteradoPor ="Usuario",Descricao="descricao2", Status = Status.Concluida },
+                new() { Nome = "Projeto 1",AlteradoPor =new Usuario { Nome = "Usuario" } ,Descricao="descricao1", Status = Status.EmAndamento },
+                new() { Nome = "Projeto 2",AlteradoPor =new Usuario { Nome = "Usuario" } ,Descricao="descricao2", Status = Status.Concluida },
             };
 
             _mockDal.Setup(d => d.GetAll<Projeto>()).Returns(projetos);
@@ -237,12 +242,12 @@ namespace ApiTaskManager.Tests.Services
             // Arrange
             var tarefas = new List<Tarefa>
             {
-                new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario="usuario", Status = Status.EmAndamento },
-                new() { Titulo = "Tarefa 2", Descricao="Descricao 2", Usuario="usuario", Status = Status.Concluida },
-                new() { Titulo = "Tarefa 3", Descricao="Descricao 3", Usuario="usuario", Status = Status.EmAndamento }
+                new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario= new Usuario{ Nome="usuario" }, Status = Status.EmAndamento },
+                new() { Titulo = "Tarefa 2", Descricao="Descricao 2", Usuario=new Usuario { Nome = "usuario" }, Status = Status.Concluida },
+                new() { Titulo = "Tarefa 3", Descricao="Descricao 3", Usuario=new Usuario { Nome = "usuario" }, Status = Status.EmAndamento }
             };
 
-            var projeto = new Projeto { Id = 1, Nome = "Projeto 1", AlteradoPor = "Usuario", Descricao = "descricao1", Tarefas = tarefas };
+            var projeto = new Projeto { Id = 1, Nome = "Projeto 1", AlteradoPor = new Usuario { Nome = "Usuario" }, Descricao = "descricao1", Tarefas = tarefas };
 
             _mockDal.Setup(d => d.GetById<Projeto>(1, It.IsAny<Expression<Func<Projeto, object>>>()))
                     .Returns(projeto);
@@ -261,10 +266,10 @@ namespace ApiTaskManager.Tests.Services
             // Arrange
             var tarefas = new List<Tarefa>
             {
-                new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario="usuario", Status = Status.Concluida }
+                new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario=new Usuario { Nome = "usuario" }, Status = Status.Concluida }
             };
 
-            var projeto = new Projeto { Id = 2, Nome = "Projeto 1", AlteradoPor = "Usuario", Descricao = "descricao1", Tarefas = tarefas };
+            var projeto = new Projeto { Id = 2, Nome = "Projeto 1", AlteradoPor = new Usuario { Nome = "Usuario" }, Descricao = "descricao1", Tarefas = tarefas };
 
             _mockDal.Setup(d => d.GetById<Projeto>(2, It.IsAny<Expression<Func<Projeto, object>>>()))
                     .Returns(projeto);
@@ -296,11 +301,11 @@ namespace ApiTaskManager.Tests.Services
             // Arrange
             var tarefas = new List<Tarefa>
             {
-                        new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario="usuario" },
-                        new() { Titulo = "Tarefa 2", Descricao="Descricao 2", Usuario="usuario" },
+                        new() { Titulo = "Tarefa 1", Descricao="Descricao 1", Usuario=new Usuario { Nome = "usuario" } },
+                        new() { Titulo = "Tarefa 2", Descricao="Descricao 2", Usuario=new Usuario { Nome = "usuario" } },
             };
 
-            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = "alterado", Tarefas = tarefas };
+            var projeto = new Projeto { Id = 1, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = new Usuario { Nome = "alterado" }, Tarefas = tarefas };
 
             _mockDal.Setup(d => d.GetById<Projeto>(1, It.IsAny<Expression<Func<Projeto, object>>>()))
                     .Returns(projeto);
@@ -316,7 +321,7 @@ namespace ApiTaskManager.Tests.Services
         public void GetAllTasksByProject_ProjetoSemTarefas_DeveRetornarListaVazia()
         {
             // Arrange
-            var projeto = new Projeto { Id = 2, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = "alterado", Tarefas = new List<Tarefa>() };
+            var projeto = new Projeto { Id = 2, Nome = "Projeto X", Descricao = "Descricao", AlteradoPor = new Usuario { Nome = "alterado" }, Tarefas = new List<Tarefa>() };
 
             _mockDal.Setup(d => d.GetById<Projeto>(2, It.IsAny<Expression<Func<Projeto, object>>>()))
                     .Returns(projeto);
@@ -349,8 +354,8 @@ namespace ApiTaskManager.Tests.Services
                 Id = 1,
                 Nome = "Projeto Limite",
                 Descricao = "Descricao",
-                AlteradoPor = "alterado",
-                Tarefas = Enumerable.Range(1, 20).Select(i => new Tarefa { Titulo = $"T{i}", Usuario = "usuario", Descricao = $"Descricao{i}" }).ToList()
+                AlteradoPor = new Usuario { Nome = "alterado" },
+                Tarefas = Enumerable.Range(1, 20).Select(i => new Tarefa { Titulo = $"T{i}", Usuario = new Usuario { Nome = "usuario" }, Descricao = $"Descricao{i}" }).ToList()
             };
 
             _mockDal.Setup(d => d.GetById<Projeto>(1, It.IsAny<Expression<Func<Projeto, object>>>()))
@@ -371,7 +376,7 @@ namespace ApiTaskManager.Tests.Services
                 Id = 1,
                 Nome = "Projeto A",
                 Descricao = "Descricao",
-                AlteradoPor = "alterado",
+                AlteradoPor = new Usuario { Nome = "alterado" },
                 Tarefas = new List<Tarefa>()
             };
 
@@ -381,6 +386,8 @@ namespace ApiTaskManager.Tests.Services
             TarefaHistorico? historicoSalvo = null;
             _mockDal.Setup(d => d.Create(It.IsAny<TarefaHistorico>()))
                     .Callback<TarefaHistorico>(h => historicoSalvo = h);
+
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns([new Usuario { Nome = "admin" }, new Usuario { Nome = "dev" }]);
 
             var request = new TarefaRequest
             {
@@ -396,7 +403,7 @@ namespace ApiTaskManager.Tests.Services
 
             // Assert
             resultado.Titulo.Should().Be("Nova Tarefa");
-            resultado.Usuario.Should().Be("dev");
+            resultado.Usuario.Nome.Should().Be("dev");
             resultado.Status.Should().Be(Status.EmAndamento);
             projeto.Tarefas.Should().Contain(resultado);
 
@@ -405,14 +412,14 @@ namespace ApiTaskManager.Tests.Services
 
             historicoSalvo.Should().NotBeNull();
             historicoSalvo.DescricaoDaAlteracao.Should().Be("Criação Tarefa");
-            historicoSalvo.AlteradoPor.Should().Be("admin");
+            historicoSalvo.AlteradoPor.Nome.Should().Be("admin");
         }
 
         [Fact]
         public void GetTaskByID_TarefaExiste_DeveRetornarTarefa()
         {
             // Arrange
-            var tarefa = new Tarefa { Id = 1, Titulo = "Tarefa Teste", Descricao = "Descricao 1", Usuario = "usuario" };
+            var tarefa = new Tarefa { Id = 1, Titulo = "Tarefa Teste", Descricao = "Descricao 1", Usuario = new Usuario { Nome = "usuario" } };
 
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns(tarefa);
 
@@ -458,7 +465,7 @@ namespace ApiTaskManager.Tests.Services
                 Id = 1,
                 Titulo = "Antigo",
                 Descricao = "Desc",
-                Usuario = "old_user",
+                Usuario = new Usuario { Nome = "old_user" },
                 DataDeVencimento = new DateTime(2025, 07, 13),
                 Status = Status.EmAndamento
             };
@@ -469,6 +476,7 @@ namespace ApiTaskManager.Tests.Services
 
             _mockDal.Setup(d => d.Create(It.IsAny<TarefaHistorico>()))
                     .Callback<TarefaHistorico>(h => historicoCriado = h);
+
 
             var novaData = DateTime.Today.AddDays(5);
             var request = new TarefaUpdateRequest
@@ -481,6 +489,8 @@ namespace ApiTaskManager.Tests.Services
                 AlteradoPor = "admin"
             };
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns([new Usuario { Nome = "admin" }]);
+
             // Act
             _service.UpdateTask(1, request);
 
@@ -489,13 +499,13 @@ namespace ApiTaskManager.Tests.Services
             tarefa.Descricao.Should().Be("Nova Descrição");
             tarefa.DataDeVencimento.Should().Be(novaData);
             tarefa.Status.Should().Be(Status.Concluida);
-            tarefa.Usuario.Should().Be("admin");
+            tarefa.Usuario.Nome.Should().Be("admin");
 
             _mockDal.Verify(d => d.Update(tarefa), Times.Once);
             _mockDal.Verify(d => d.Create(It.IsAny<TarefaHistorico>()), Times.Once);
 
             historicoCriado.Should().NotBeNull();
-            historicoCriado.AlteradoPor.Should().Be("admin");
+            historicoCriado.AlteradoPor.Nome.Should().Be("admin");
             historicoCriado.DescricaoDaAlteracao.Should().Be("Alteração Tarefa");
         }
 
@@ -507,12 +517,14 @@ namespace ApiTaskManager.Tests.Services
                 Id = 2,
                 Titulo = "Original",
                 Descricao = "Desc",
-                Usuario = "user",
+                Usuario = new Usuario { Nome = "user" },
                 DataDeVencimento = DateTime.Today,
                 Status = Status.EmAndamento
             };
 
             _mockDal.Setup(d => d.GetById<Tarefa>(2)).Returns(tarefa);
+
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns([new Usuario { Nome = "admin" }]);
 
             var request = new TarefaUpdateRequest
             {
@@ -526,9 +538,9 @@ namespace ApiTaskManager.Tests.Services
 
             _service.UpdateTask(2, request);
 
-            tarefa.Titulo.Should().Be("Original"); // não mudou
-            tarefa.Descricao.Should().Be("Atualizado"); // mudou
-            tarefa.Usuario.Should().Be("user"); // não mudou
+            tarefa.Titulo.Should().Be("Original");
+            tarefa.Descricao.Should().Be("Atualizado");
+            tarefa.Usuario.Nome.Should().Be("user");
 
             _mockDal.Verify(d => d.Update(tarefa), Times.Once);
             _mockDal.Verify(d => d.Create(It.IsAny<TarefaHistorico>()), Times.Once);
@@ -546,6 +558,8 @@ namespace ApiTaskManager.Tests.Services
 
             _mockDal.Setup(d => d.GetById<Tarefa>(request.IdTarefa)).Returns((Tarefa)null);
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "user" } });
+
             // Act
             Action act = () => _service.AddComment(request.IdTarefa, request);
 
@@ -562,7 +576,7 @@ namespace ApiTaskManager.Tests.Services
                 Id = 1,
                 Titulo = "Titulo 1",
                 Descricao = "Descrição",
-                Usuario = "dev",
+                Usuario = new Usuario { Nome = "dev" },
                 Comentarios = new List<Comentario>()
             };
 
@@ -575,6 +589,8 @@ namespace ApiTaskManager.Tests.Services
 
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns(tarefa);
 
+            _mockDal.Setup(d => d.GetAll<Usuario>()).Returns(new List<Usuario> { new Usuario { Nome = "admin" } });
+
             TarefaHistorico historicoCriado = null;
             _mockDal.Setup(d => d.Create(It.IsAny<TarefaHistorico>()))
                     .Callback<TarefaHistorico>(h => historicoCriado = h);
@@ -585,20 +601,20 @@ namespace ApiTaskManager.Tests.Services
             // Assert
             tarefa.Comentarios.Should().HaveCount(1);
             tarefa.Comentarios[0].conteudo.Should().Be("Primeiro comentário");
-            tarefa.Comentarios[0].Usuario.Should().Be("admin");
+            tarefa.Comentarios[0].Usuario.Nome.Should().Be("admin");
 
             _mockDal.Verify(d => d.Update(tarefa), Times.Once);
             _mockDal.Verify(d => d.Create(It.IsAny<TarefaHistorico>()), Times.Once);
 
             historicoCriado.Should().NotBeNull();
             historicoCriado.DescricaoDaAlteracao.Should().Be("Novo Comentário na Tarefa");
-            historicoCriado.AlteradoPor.Should().Be("admin");
+            historicoCriado.AlteradoPor.Nome.Should().Be("admin");
         }
         [Fact]
         public void CloseTask_TarefaExiste_DeveChamarDelete()
         {
             // Arrange
-            var tarefa = new Tarefa {Id = 1, Titulo = "Tarefa 1", Descricao = "Descricao 1", Usuario = "usuario" };
+            var tarefa = new Tarefa {Id = 1, Titulo = "Tarefa 1", Descricao = "Descricao 1", Usuario = new Usuario { Nome = "usuario" } };
 
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns(tarefa);
 
