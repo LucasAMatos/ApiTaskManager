@@ -1,6 +1,8 @@
 using ApiTaskManager.Middlewares;
-using ApiTaskManager.Database;
+using ApiTaskManager.Data;
 using Microsoft.EntityFrameworkCore;
+using ApiTaskManager.Interfaces;
+using ApiTaskManager.Services;
 
 namespace ApiTaskManager.Helpers
 {
@@ -22,6 +24,8 @@ namespace ApiTaskManager.Helpers
             services.AddDbContext<ApiDbContext>(options =>
                 options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
 
+            services.AddScoped<IProjetoService, ProjetoService>();
+            
             return services;
         }
       

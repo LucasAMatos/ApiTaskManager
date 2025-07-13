@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ApiTaskManager.Models;
 
-namespace ApiTaskManager.Database;
+namespace ApiTaskManager.Data;
 
-public class ApiDbContext : DbContext
+public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(options)
 {
-    public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
-
     public DbSet<Projeto> Projetos => Set<Projeto>();
+    public DbSet<Tarefa> Tarefas => Set<Tarefa>();
 }
