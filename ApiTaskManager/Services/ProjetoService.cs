@@ -84,7 +84,7 @@ namespace ApiTaskManager.Services
                 Usuario = task.UsuarioResponsavel,
                 DataDeVencimento = task.DataDeVencimento,
                 Prioridade = task.Prioridade,
-                Status = Enums.Status.EmAndamento,
+                Status = Enums.Status.EmAndamento,                
             };
 
             _projeto.Tarefas.Add(novaTarefa);
