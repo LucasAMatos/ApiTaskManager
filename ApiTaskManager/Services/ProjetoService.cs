@@ -5,6 +5,7 @@ using ApiTaskManager.Interfaces;
 using ApiTaskManager.Models;
 using ApiTaskManager.Models.Request;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace ApiTaskManager.Services
 {
@@ -69,8 +70,13 @@ namespace ApiTaskManager.Services
         #region Tarefas
         public Tarefa CreateTask(int idProjeto, TarefaRequest task)
         {
-            var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
-            
+            var _projeto = _DAL.GetById<Projeto>(idProjeto, p => p.Tarefas) ?? throw new ApplicationException("Projeto não encontrado");
+
+            if (_projeto.Tarefas.Count == 20)
+            {
+                throw new ApplicationException($"Projeto {idProjeto}-{_projeto.Nome} Possui quantidade máxima de tarefas atribuidas.");
+            }    
+
             Tarefa novaTarefa = new()
             {
                 Titulo = task.Titulo,
