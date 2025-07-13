@@ -9,5 +9,6 @@ namespace ApiTaskManager.Models.Request
         public DateOnly DataDeVencimento { get; set; }
         public required string UsuarioResponsavel { get; set; }
         public Prioridade Prioridade { get; set; }
+        public string CriadoPor { get; set; }
     }
 }
