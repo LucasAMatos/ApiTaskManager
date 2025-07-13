@@ -14,7 +14,7 @@ namespace ApiTaskManager.Services
         #region Projetos
         public List<string> GetAllProjects() => [.. _DAL.GetAll<Projeto>().Select(p => p.Nome)];
 
-        public  List<string> GetAllProjectsByStatus(Status status) => [.. _DAL.GetAll<Projeto>().Where(p => p.Status == status).Select(p => p.Nome)];
+        public List<string> GetAllProjectsByStatus(Status status) => [.. _DAL.GetAll<Projeto>().Where(p => p.Status == status).Select(p => p.Nome)];
 
         public Projeto? GetProjecById(int id) => _DAL.GetById<Projeto>(id);
 
@@ -27,7 +27,7 @@ namespace ApiTaskManager.Services
                 DataDeCriacao = DateTime.UtcNow,
                 AlteradoPor = projetoRequest.Usuario ?? string.Empty,
             };
-            
+
             return _DAL.Create<Projeto>(response).Id;
         }
 
@@ -35,9 +35,9 @@ namespace ApiTaskManager.Services
         {
             var _projeto = _DAL.GetById<Projeto>(idProjeto) ?? throw new ApplicationException("Projeto não encontrado");
 
-            _projeto.Nome = projetoAtualizado.Nome;
-            _projeto.Descricao = projetoAtualizado.Descricao ?? string.Empty;
-            _projeto.AlteradoPor = projetoAtualizado.Usuario ?? string.Empty;
+            if (projetoAtualizado.Nome != null) _projeto.Nome = projetoAtualizado.Nome;
+            if (projetoAtualizado.Descricao != null) _projeto.Descricao = projetoAtualizado.Descricao;
+            _projeto.AlteradoPor = projetoAtualizado.Usuario;
 
             _DAL.Update<Projeto>(_projeto);
         }
@@ -75,7 +75,7 @@ namespace ApiTaskManager.Services
             if (_projeto.Tarefas.Count == 20)
             {
                 throw new ApplicationException($"Projeto {idProjeto}-{_projeto.Nome} Possui quantidade máxima de tarefas atribuidas.");
-            }    
+            }
 
             Tarefa novaTarefa = new()
             {
@@ -84,7 +84,7 @@ namespace ApiTaskManager.Services
                 Usuario = task.UsuarioResponsavel,
                 DataDeVencimento = task.DataDeVencimento,
                 Prioridade = task.Prioridade,
-                Status = Enums.Status.EmAndamento,                
+                Status = Enums.Status.EmAndamento,
             };
 
             _projeto.Tarefas.Add(novaTarefa);
@@ -104,10 +104,11 @@ namespace ApiTaskManager.Services
         {
             var tarefa = _DAL.GetById<Tarefa>(idTarefa) ?? throw new ApplicationException("Tarefa não encontrada");
 
-            tarefa.Titulo = request.Titulo;
-            tarefa.Descricao = request.Descricao;
-            tarefa.DataDeVencimento = request.DataDeVencimento;
-            tarefa.Status = request.Status;
+            if (request.Titulo != null) tarefa.Titulo = request.Titulo;
+            if (request.Descricao != null) tarefa.Descricao = request.Descricao;
+            if (request.DataDeVencimento.HasValue) tarefa.DataDeVencimento = request.DataDeVencimento.Value;
+            if (request.Status.HasValue) tarefa.Status = request.Status.Value;
+            if (request.UsuarioResponsavel != null) tarefa.Usuario = request.UsuarioResponsavel;
 
             _DAL.Update<Tarefa>(tarefa);
             _DAL.Create<TarefaHistorico>(tarefa.ToHistorico(request.AlteradoPor, "Alteração Tarefa"));
