@@ -22,7 +22,12 @@ namespace ApiTaskManager.Helpers
             services.AddOpenApi();
             services.AddHealthChecks();
 
+            //Serviços
             services.AddScoped<IProjetoService, ProjetoService>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
+            services.AddScoped<IReportService, ReportService>();
+
+            //Acesso A Dados
             services.AddScoped<IDAL, DAL>();
 
             return services;

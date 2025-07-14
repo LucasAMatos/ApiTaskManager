@@ -11,6 +11,7 @@ public class Tarefa
     public required Usuario Usuario { get; set; }
     public Prioridade Prioridade { get; set; }
     public List<Comentario> Comentarios { get; set; } = [];
+    public DateTime UltimaAlteracao { get; set; }
     public int ProjetoId { get; set; }
     public Projeto Projeto { get; set; } = null!;
 }

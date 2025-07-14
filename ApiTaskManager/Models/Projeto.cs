@@ -11,4 +11,5 @@ public class Projeto
     public required Usuario AlteradoPor { get; set; }
     public Status Status { get; set; }
     public List<Tarefa> Tarefas { get; set; } = [];
+    public DateTime UltimaAlteracao { get; set; }
 }
