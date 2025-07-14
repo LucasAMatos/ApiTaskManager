@@ -1,6 +1,7 @@
 ﻿using ApiTaskManager.Enums;
 
-namespace ApiTaskManager.Models;
+namespace ApiTaskManager.Models.Entity;
+
 public class TarefaHistorico
 {
     public int Id { get; set; }
@@ -11,7 +12,7 @@ public class TarefaHistorico
     public Status Status { get; set; }
     public required Usuario Usuario { get; set; }
     public Prioridade Prioridade { get; set; }
-    public int ProjetoId { get; set; }
+    public int IdProjeto { get; set; }
     public required Usuario AlteradoPor { get; set; }
     public string DescricaoDaAlteracao { get; set; }
     public DateTime DataAlteracao { get; set; }

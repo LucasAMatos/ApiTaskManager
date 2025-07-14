@@ -1,23 +1,24 @@
-﻿using ApiTaskManager.Models;
-using ApiTaskManager.Models.Request;
+﻿using ApiTaskManager.Models.Request;
+using ApiTaskManager.Models.Entity;
 using ApiTaskManager.Enums;
-using ApiTaskManager.Interfaces;
 using ApiTaskManager.Services;
 using FluentAssertions;
 using Moq;
 using System.Linq.Expressions;
+using ApiTaskManager.Interfaces.DAL;
+using ApiTaskManager.Interfaces.Services;
 
 namespace ApiTaskManager.Tests.Services
 {
     public class ProjetoServiceTests
     {
-        private readonly Mock<IDAL> _mockDal;
+        private readonly Mock<IProjetoDAL> _mockDal;
         private readonly Mock<IUsuarioService> _mockUsuario;
         private readonly ProjetoService _service;
 
         public ProjetoServiceTests()
         {
-            _mockDal = new Mock<IDAL>();
+            _mockDal = new Mock<IProjetoDAL>();
             _mockUsuario = new Mock<IUsuarioService>();
             _service = new ProjetoService(_mockDal.Object, _mockUsuario.Object);
         }
@@ -222,8 +223,12 @@ namespace ApiTaskManager.Tests.Services
                 .Setup(d => d.GetById<Projeto>(10))
                 .Returns((Projeto)null);
 
+            _mockUsuario
+                .Setup(d => d.GetUsuarioByName("usuario"))
+                .Returns(new Usuario { Nome = "usuario" });
+
             // Act
-            Action act = () => _service.DeleteProject(10);
+            Action act = () => _service.DeleteProject(10, "usuario");
 
             // Assert
             act.Should().Throw<ApplicationException>().WithMessage("Projeto não encontrado");
@@ -245,8 +250,12 @@ namespace ApiTaskManager.Tests.Services
                 .Setup(d => d.GetById<Projeto>(1))
                 .Returns(projeto);
 
+            _mockUsuario
+                .Setup(d => d.GetUsuarioByName("usuario"))
+                .Returns(new Usuario { Nome = "usuario" });
+
             // Act
-            _service.DeleteProject(1);
+            _service.DeleteProject(1, "usuario");
 
             // Assert
             _mockDal.Verify(d => d.Delete(projeto), Times.Once);
@@ -648,7 +657,6 @@ namespace ApiTaskManager.Tests.Services
 
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns(tarefa);
 
-
             _mockUsuario
                 .Setup(d => d.GetUsuarioByName(request.Usuario))
                 .Returns(new Usuario { Nome = request.Usuario });
@@ -680,8 +688,12 @@ namespace ApiTaskManager.Tests.Services
 
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns(tarefa);
 
+            _mockUsuario
+                .Setup(d => d.GetUsuarioByName("usuario"))
+                .Returns(new Usuario { Nome = "usuario" });
+
             // Act
-            _service.CloseTask(1);
+            _service.CloseTask(1, "usuario");
 
             // Assert
             _mockDal.Verify(d => d.Delete(tarefa), Times.Once);
@@ -693,8 +705,12 @@ namespace ApiTaskManager.Tests.Services
             // Arrange
             _mockDal.Setup(d => d.GetById<Tarefa>(1)).Returns((Tarefa)null);
 
+            _mockUsuario
+                .Setup(d => d.GetUsuarioByName("usuario"))
+                .Returns(new Usuario { Nome = "usuario" });
+
             // Act
-            var act = () => _service.CloseTask(1);
+            var act = () => _service.CloseTask(1, "usuario");
 
             // Assert
             act.Should().NotThrow();

@@ -1,6 +1,6 @@
 ﻿using ApiTaskManager.Enums;
 
-namespace ApiTaskManager.Models;
+namespace ApiTaskManager.Models.Entity;
 public class Tarefa
 {
     public int Id { get; set; }
@@ -12,6 +12,6 @@ public class Tarefa
     public Prioridade Prioridade { get; set; }
     public List<Comentario> Comentarios { get; set; } = [];
     public DateTime UltimaAlteracao { get; set; }
-    public int ProjetoId { get; set; }
+    public int IdProjeto { get; set; }
     public Projeto Projeto { get; set; } = null!;
 }

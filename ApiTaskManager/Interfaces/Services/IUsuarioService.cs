@@ -1,6 +1,6 @@
-﻿using ApiTaskManager.Models;
+﻿using ApiTaskManager.Models.Entity;
 
-namespace ApiTaskManager.Interfaces
+namespace ApiTaskManager.Interfaces.Services
 {
     public interface IUsuarioService
     {

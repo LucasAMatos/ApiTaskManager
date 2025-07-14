@@ -1,4 +1,4 @@
-﻿using ApiTaskManager.Models;
+﻿using ApiTaskManager.Models.Entity;
 using ApiTaskManager.Models.Request;
 
 namespace ApiTaskManager.Extensions;
@@ -16,10 +16,10 @@ public static class Extensions
             Status = tarefa.Status,
             Usuario = tarefa.Usuario,
             Prioridade = tarefa.Prioridade,
-            ProjetoId = tarefa.ProjetoId,
+            IdProjeto = tarefa.IdProjeto,
             AlteradoPor = alteradoPor,
             DescricaoDaAlteracao = descricaoDaAlteracao,
-            DataAlteracao = DateTime.UtcNow
+            DataAlteracao = tarefa.UltimaAlteracao
         };
     }
 

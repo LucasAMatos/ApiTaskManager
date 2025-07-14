@@ -1,6 +1,6 @@
 ﻿using ApiTaskManager.Enums;
 
-namespace ApiTaskManager.Models;
+namespace ApiTaskManager.Models.Entity;
 
 public class Projeto
 {

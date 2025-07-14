@@ -1,7 +1,7 @@
 ﻿using ApiTaskManager.Enums;
 using ApiTaskManager.Helpers;
-using ApiTaskManager.Interfaces;
-using ApiTaskManager.Models;
+using ApiTaskManager.Interfaces.Services;
+using ApiTaskManager.Models.Entity;
 using ApiTaskManager.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -54,9 +54,9 @@ public static class ApiTaskManagerEndpoints
         })
         .WithOpenApiTaskManager("AtualizarProjeto", "Atualiza os Dados do Projeto");
 
-        projectEndpoints.MapPost("/{idProject}/close",  (int idProject, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapDelete("/{idProject}/close",  (int idProject, [FromBody] string usuario, [FromServices] IProjetoService projetoService) =>
         {
-            projetoService.DeleteProject(idProject);
+            projetoService.DeleteProject(idProject, usuario);
         })
         .WithOpenApiTaskManager("FinalizarProjeto", "Finaliza o Projeto");
 
@@ -101,9 +101,9 @@ public static class ApiTaskManagerEndpoints
         })
         .WithOpenApiTaskManager("IncluirComentário", "Adiciona um novo comentário na tarefa");
 
-        projectEndpoints.MapPost("/close/{idTask}",  (int idTask, [FromServices] IProjetoService projetoService) =>
+        projectEndpoints.MapDelete("/close/{idTask}",  (int idTask, [FromBody] string usuario, [FromServices] IProjetoService projetoService) =>
         {
-            projetoService.CloseTask(idTask);
+            projetoService.CloseTask(idTask, usuario);
         })
         .WithOpenApiTaskManager("FinalizarTarefa", "Finaliza a Tarefa");
     }

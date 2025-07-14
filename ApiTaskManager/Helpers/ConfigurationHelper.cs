@@ -1,14 +1,15 @@
 using ApiTaskManager.Middlewares;
 using ApiTaskManager.Data;
 using Microsoft.EntityFrameworkCore;
-using ApiTaskManager.Interfaces;
 using ApiTaskManager.Services;
+using ApiTaskManager.Interfaces.DAL;
+using ApiTaskManager.Interfaces.Services;
 
 namespace ApiTaskManager.Helpers
 {
     public static class ConfigurationHelper
     {
-        public static IServiceCollection ConfigureApiServices(this IServiceCollection services)
+        public static IServiceCollection ConfigureApiServices(this IServiceCollection services, string connection)
         {
             services.AddEndpointsApiExplorer();
             services.AddOpenApiDocument(config =>
@@ -22,13 +23,19 @@ namespace ApiTaskManager.Helpers
             services.AddOpenApi();
             services.AddHealthChecks();
 
+            services.AddDbContext<UsuarioDbContext>(options =>
+                options.UseSqlServer(connection));
+
+            services.AddDbContext<ProjetoDbContext>(options =>
+                options.UseSqlServer(connection));
+            //Acesso A Dados
+            services.AddScoped<IProjetoDAL, ProjetosDAL>();
+            services.AddScoped<IUsuarioDAL, UsuariosDAL>();
+
             //Serviços
             services.AddScoped<IProjetoService, ProjetoService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IReportService, ReportService>();
-
-            //Acesso A Dados
-            services.AddScoped<IDAL, DAL>();
 
             return services;
         }
