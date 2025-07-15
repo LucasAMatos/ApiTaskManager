@@ -64,16 +64,21 @@ public class ProjetoService : IProjetoService
     {
         _usuarioService.GetUsuarioByName(usuario);
 
-        var _projeto = GetProjectByIdWithTasks(idProjeto);
+        var projeto = GetProjectByIdWithTasks(idProjeto);
 
-        if (_projeto.Tarefas != null && _projeto.Tarefas.Count > 0)
+        if (projeto.Tarefas?.Any() == true)
         {
-            throw new ApplicationException($"Projeto Possui {_projeto.Tarefas.Count} Tarefas em Aberto que devem ser finalizadas ou excluídas");
+            var tarefasEmAberto = projeto.Tarefas.Where(t => t.Status != Status.Concluida).ToList();
+
+            if (tarefasEmAberto.Any())
+                throw new ApplicationException($"Projeto possui {tarefasEmAberto.Count} tarefas em aberto que devem ser finalizadas ou excluídas");
+
+            foreach (var tarefa in projeto.Tarefas)
+                CloseTask(tarefa.Id, usuario);
         }
 
-        _ProjetoDAL.Delete<Projeto>(_projeto);
+        _ProjetoDAL.Delete<Projeto>(projeto);
     }
-
 
     #endregion Projetos
 
