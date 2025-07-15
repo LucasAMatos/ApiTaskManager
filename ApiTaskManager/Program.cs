@@ -5,13 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureApiServices();
+var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<DbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        sql => sql.MigrationsAssembly("ApiTaskManager")));
+builder.Services.ConfigureApiServices(connection);
 
 var app = builder.Build();
+
+// Executa as migrations automaticamente no startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ProjetoDbContext>();
+    db.Database.Migrate(); // <--- aplica as migrações pendentes e cria o banco se necessário
+}
+
+// Executa as migrations automaticamente no startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UsuarioDbContext>();
+    db.Database.Migrate(); // <--- aplica as migrações pendentes e cria o banco se necessário
+}
 
 app.ConfigureApiPipeline();
 

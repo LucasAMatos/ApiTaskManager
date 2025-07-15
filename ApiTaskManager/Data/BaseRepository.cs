@@ -1,12 +1,18 @@
-﻿using ApiTaskManager.Interfaces;
+﻿using ApiTaskManager.Interfaces.DAL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 
 namespace ApiTaskManager.Data
 {
-    public class DAL(DbContext context) : IDAL
+    public abstract class BaseRepository
     {
-        private readonly DbContext _context = context;
+        protected readonly DbContext _context;
+
+        public BaseRepository(DbContext context)
+        {
+            _context = context;
+        }
 
         public T Create<T>(T entity) where T : class
         {
@@ -18,7 +24,7 @@ namespace ApiTaskManager.Data
 
         public ICollection<T> GetAll<T>() where T : class
         {
-            return [.. context.Set<T>()];
+            return [.. _context.Set<T>()];
         }
 
         public void Update<T>(T entity) where T : class
@@ -35,12 +41,12 @@ namespace ApiTaskManager.Data
 
         public T? GetById<T>(int id) where T : class
         {
-            return context.Set<T>().Find(id);
+            return _context.Set<T>().Find(id);
         }
 
         public T? GetById<T>(int id, params Expression<Func<T, object>>[] includes) where T : class
         {
-            IQueryable<T> query = context.Set<T>();
+            IQueryable<T> query = _context.Set<T>();
 
             foreach (var include in includes)
             {

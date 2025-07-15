@@ -1,14 +1,16 @@
 using ApiTaskManager.Middlewares;
 using ApiTaskManager.Data;
 using Microsoft.EntityFrameworkCore;
-using ApiTaskManager.Interfaces;
 using ApiTaskManager.Services;
+using ApiTaskManager.Interfaces.DAL;
+using ApiTaskManager.Interfaces.Services;
+using NSwag.AspNetCore;
 
 namespace ApiTaskManager.Helpers
 {
     public static class ConfigurationHelper
     {
-        public static IServiceCollection ConfigureApiServices(this IServiceCollection services)
+        public static IServiceCollection ConfigureApiServices(this IServiceCollection services, string connection)
         {
             services.AddEndpointsApiExplorer();
             services.AddOpenApiDocument(config =>
@@ -19,11 +21,22 @@ namespace ApiTaskManager.Helpers
             });
             // Add services to the container.
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            services.AddOpenApi();
+            services.AddOpenApiDocument();
             services.AddHealthChecks();
 
+            services.AddDbContext<UsuarioDbContext>(options =>
+                options.UseSqlServer(connection));
+
+            services.AddDbContext<ProjetoDbContext>(options =>
+                options.UseSqlServer(connection));
+            //Acesso A Dados
+            services.AddScoped<IProjetoDAL, ProjetosDAL>();
+            services.AddScoped<IUsuarioDAL, UsuariosDAL>();
+
+            //Serviços
             services.AddScoped<IProjetoService, ProjetoService>();
-            services.AddScoped<IDAL, DAL>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
+            services.AddScoped<IReportService, ReportService>();
 
             return services;
         }
@@ -33,12 +46,6 @@ namespace ApiTaskManager.Helpers
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseOpenApi();      // Gera o /swagger/v1/swagger.json
             app.UseSwaggerUi();   // Interface Swagger compatível com WithDescription
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi(); 
-            }
 
             return app;
         }

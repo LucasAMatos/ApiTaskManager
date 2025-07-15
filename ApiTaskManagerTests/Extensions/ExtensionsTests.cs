@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using ApiTaskManager.Models;
+using ApiTaskManager.Models.Entity;
 using ApiTaskManager.Extensions;
 using ApiTaskManager.Models.Request;
 using ApiTaskManager.Enums;
@@ -21,7 +21,7 @@ namespace ApiTaskManagerTests.Extensions
                 Status = Status.Pendente,
                 Usuario = new Usuario { Nome = "usuario1" },
                 Prioridade = Prioridade.Alta,
-                ProjetoId = 10
+                IdProjeto = 10
             };
 
             var alteradoPor = new Usuario { Nome = "admin" };
@@ -38,7 +38,7 @@ namespace ApiTaskManagerTests.Extensions
             historico.Status.Should().Be(tarefa.Status);
             historico.Usuario.Should().Be(tarefa.Usuario);
             historico.Prioridade.Should().Be(tarefa.Prioridade);
-            historico.ProjetoId.Should().Be(tarefa.ProjetoId);
+            historico.IdProjeto.Should().Be(tarefa.IdProjeto);
             historico.AlteradoPor.Should().Be(alteradoPor);
             historico.DescricaoDaAlteracao.Should().Be(descricaoAlteracao);
             historico.DataAlteracao.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));

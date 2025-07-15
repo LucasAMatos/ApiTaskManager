@@ -1,6 +1,6 @@
 ﻿using ApiTaskManager.Enums;
 
-namespace ApiTaskManager.Models;
+namespace ApiTaskManager.Models.Entity;
 
 public class Projeto
 {
@@ -11,4 +11,5 @@ public class Projeto
     public required Usuario AlteradoPor { get; set; }
     public Status Status { get; set; }
     public List<Tarefa> Tarefas { get; set; } = [];
+    public DateTime UltimaAlteracao { get; set; }
 }
