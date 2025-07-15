@@ -21,7 +21,8 @@ namespace ApiTaskManagerTests.Extensions
                 Status = Status.Pendente,
                 Usuario = new Usuario { Nome = "usuario1" },
                 Prioridade = Prioridade.Alta,
-                IdProjeto = 10
+                IdProjeto = 10,
+                UltimaAlteracao = new DateTime(2025, 12, 31)
             };
 
             var alteradoPor = new Usuario { Nome = "admin" };
@@ -41,7 +42,7 @@ namespace ApiTaskManagerTests.Extensions
             historico.IdProjeto.Should().Be(tarefa.IdProjeto);
             historico.AlteradoPor.Should().Be(alteradoPor);
             historico.DescricaoDaAlteracao.Should().Be(descricaoAlteracao);
-            historico.DataAlteracao.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            historico.DataAlteracao.Should().Be(tarefa.UltimaAlteracao);
         }
 
         [Fact]
@@ -56,12 +57,12 @@ namespace ApiTaskManagerTests.Extensions
             };
 
             // Act
-            var comentario = comentarioRequest.ToComentario(new Usuario { Nome = "comentador1" });
+            var comentario = comentarioRequest.ToComentario(new Usuario { Nome = comentarioRequest.Usuario });
 
             // Assert
             comentario.conteudo.Should().Be(comentarioRequest.Comentario);
             comentario.IdTarefa.Should().Be(comentarioRequest.IdTarefa);
-            comentario.Usuario.Should().Be(comentarioRequest.Usuario);
+            comentario.Usuario.Nome.Should().Be(comentarioRequest.Usuario);
         }
     }
 }

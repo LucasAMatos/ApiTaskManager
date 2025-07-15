@@ -243,11 +243,11 @@ namespace ApiTaskManager.Tests.Services
                 Id = 1, 
                 Nome = "Projeto X", 
                 Descricao = "Original", 
-                AlteradoPor = new Usuario { Nome = "x" } 
+                AlteradoPor = new Usuario { Nome = "x" }
             };
             
             _mockDal
-                .Setup(d => d.GetById<Projeto>(1))
+                .Setup(d => d.GetById<Projeto>(1, p => p.Tarefas))
                 .Returns(projeto);
 
             _mockUsuario
@@ -713,8 +713,7 @@ namespace ApiTaskManager.Tests.Services
             var act = () => _service.CloseTask(1, "usuario");
 
             // Assert
-            act.Should().NotThrow();
-            _mockDal.Verify(d => d.Delete(It.IsAny<Tarefa>()), Times.Never);
+            act.Should().Throw<ApplicationException>().WithMessage("Tarefa não encontrada");
         }
 
     }

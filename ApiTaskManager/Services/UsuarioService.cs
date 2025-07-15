@@ -16,7 +16,7 @@ namespace ApiTaskManager.Services
         #region Usuarios
         public Usuario? GetUsuarioByName(string nome)
         {
-            return _UsuarioDAL.GetAll<Usuario>().First(u => u.Nome == nome) ?? throw new ApplicationException("Usuário não encontrado");
+            return _UsuarioDAL.GetAll<Usuario>().FirstOrDefault(u => u.Nome == nome) ?? throw new ApplicationException("Usuário não encontrado");
         }
         #endregion
 
