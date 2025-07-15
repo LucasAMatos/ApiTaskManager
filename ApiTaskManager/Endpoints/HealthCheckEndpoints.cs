@@ -1,7 +1,7 @@
 ﻿using ApiTaskManager.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.OpenApi;
 
 namespace ApiTaskManager.Endpoints
 {

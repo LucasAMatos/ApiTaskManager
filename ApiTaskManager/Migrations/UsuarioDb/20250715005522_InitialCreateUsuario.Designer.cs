@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiTaskManager.Migrations.UsuarioDb
 {
     [DbContext(typeof(UsuarioDbContext))]
-    [Migration("20250714041728_InitialCreateUsuario")]
+    [Migration("20250715005522_InitialCreateUsuario")]
     partial class InitialCreateUsuario
     {
         /// <inheritdoc />

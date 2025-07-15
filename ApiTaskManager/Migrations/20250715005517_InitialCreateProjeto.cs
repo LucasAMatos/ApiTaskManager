@@ -25,6 +25,12 @@ namespace ApiTaskManager.Migrations
                     table.PrimaryKey("PK_Usuario", x => x.Id);
                 });
 
+            // Inserção dos dados iniciais
+            migrationBuilder.Sql(@"
+                INSERT INTO Usuario (Nome, Cargo) VALUES ('Gerente', 'gerente');
+                INSERT INTO Usuario (Nome, Cargo) VALUES ('Dev', 'dev');
+            ");
+
             migrationBuilder.CreateTable(
                 name: "Projetos",
                 columns: table => new
@@ -74,12 +80,6 @@ namespace ApiTaskManager.Migrations
                         principalTable: "Projetos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tarefas_Usuario_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuario",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,12 +100,6 @@ namespace ApiTaskManager.Migrations
                         name: "FK_Comentarios_Tarefas_TarefaId",
                         column: x => x.TarefaId,
                         principalTable: "Tarefas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Comentarios_Usuario_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuario",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });

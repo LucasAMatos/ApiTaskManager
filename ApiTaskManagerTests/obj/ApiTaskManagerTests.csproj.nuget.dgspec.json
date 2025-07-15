@@ -126,7 +126,7 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "C:\\Program Files\\dotnet\\library-packs": {},
@@ -134,8 +134,8 @@
           "https://nuget.banksofttecnologia.com.br/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -152,12 +152,12 @@
         "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[9.0.7, )"
+              "version": "[8.0.18, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
@@ -173,9 +173,13 @@
               "target": "Package",
               "version": "[9.0.7, )"
             },
+            "Microsoft.OpenApi": {
+              "target": "Package",
+              "version": "[1.6.24, )"
+            },
             "NSwag.AspNetCore": {
               "target": "Package",
-              "version": "[14.4.0, )"
+              "version": "[14.0.8, )"
             },
             "NSwag.SwaggerGeneration": {
               "target": "Package",

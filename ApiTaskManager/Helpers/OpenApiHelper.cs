@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
+using Microsoft.AspNetCore.OpenApi;
 
 namespace ApiTaskManager.Helpers;
 
